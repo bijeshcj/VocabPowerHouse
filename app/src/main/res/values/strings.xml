@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Vocab Power House</string>
+    <string name="tab_text_1">Transition Word</string>
+    <string name="tab_text_2">General Word</string>
+    <string name="notification_title">Can you recollect this word?</string>
+</resources>
