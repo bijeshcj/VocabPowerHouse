@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.CountDownTimer
 import android.widget.Toast
 import com.bijesh.vocabpowerhouse.constants.INTENT_NOTIFICATION_WORD_INDEX
+import com.bijesh.vocabpowerhouse.receiver.RestartReceiver
 import com.bijesh.vocabpowerhouse.ui.main.storage.hashMapTransition
 import com.bijesh.vocabpowerhouse.utils.getNotificationMessage
 import com.bijesh.vocabpowerhouse.utils.getNotificationTitle
@@ -30,14 +31,15 @@ import com.bijesh.vocabpowerhouse.utils.getRandomNumber
 
     var channelID = "VocabPowerHouse"
     lateinit var notificationManager:NotificationManager
-
-
+    val timerTrigger:Long = 60000 * 4
 
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        Log.e("ForEver","onStartCommand")
+//        pushNotification1()
         startCountDown()
         return START_STICKY
     }
@@ -50,7 +52,8 @@ import com.bijesh.vocabpowerhouse.utils.getRandomNumber
 
     override fun onDestroy() {
         super.onDestroy()
-        var intent = Intent("RestartReceiver")
+        Log.e("ForEver","onDestroy")
+        var intent = Intent(ForEverService@this,RestartReceiver::class.java)
         sendBroadcast(intent)
     }
 
@@ -72,13 +75,15 @@ import com.bijesh.vocabpowerhouse.utils.getRandomNumber
     }
 
     private fun startCountDown(){
-        val timer = object: CountDownTimer( 60000, 1000){
+        val timer = object: CountDownTimer( timerTrigger, 1000){
             override fun onFinish() {
                 Toast.makeText(this@ForEverService,"Timer triggered", Toast.LENGTH_LONG).show()
+                Log.e("ForEver startCountDown ",""+timerTrigger)
                 pushNotification1()
                 startCountDown()
             }
             override fun onTick(millisUntilFinished: Long) {
+                Log.e("ForEver",""+millisUntilFinished)
             }
         }
         timer.start()
@@ -104,6 +109,11 @@ import com.bijesh.vocabpowerhouse.utils.getRandomNumber
             .setChannelId(channelID)
             .build()
 
+        var notification: Notification = notificationBuilder.build()
+        notification.flags = Notification.FLAG_NO_CLEAR
+        notification.flags = Notification.FLAG_ONGOING_EVENT
+
+
         if (Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.O) {
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channelId = "Your_channel_id"
@@ -114,6 +124,7 @@ import com.bijesh.vocabpowerhouse.utils.getRandomNumber
             )
             notificationManager.createNotificationChannel(channel)
             notificationBuilder.setChannelId(channelId)
+//            startForeground(1,notificationBuilder.build())
         }
 
         notificationManager.notify(0,notificationBuilder.build())

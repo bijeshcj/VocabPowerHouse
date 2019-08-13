@@ -18,7 +18,11 @@ fun getNotificationMessage(map: HashMap<String,String>,number:Int):String?{
 }
 
 fun getRandomNumber(map: HashMap<String,String>):Int{
-    return (0..map.size).shuffled().first()
+    return (0..map.size-1).shuffled().first()
+}
+
+fun getRandomNumber(list:ArrayList<String>):Int{
+    return (0..list.size-1).shuffled().first()
 }
 
 fun getKeyTitle(index:Int,map:HashMap<String,String>):String{

@@ -1,5 +1,6 @@
 package com.bijesh.vocabpowerhouse
 
+import android.app.*
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -14,6 +15,14 @@ import com.bijesh.vocabpowerhouse.services.ForEverService
 import com.bijesh.vocabpowerhouse.ui.main.SectionsPagerAdapter
 import com.bijesh.vocabpowerhouse.ui.main.storage.hashMapTransition
 import com.bijesh.vocabpowerhouse.utils.getRandomNumber
+import android.content.Context.ACTIVITY_SERVICE
+import android.content.Context
+import androidx.core.content.ContextCompat.startForegroundService
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import com.bijesh.vocabpowerhouse.utils.getNotificationMessage
+import com.bijesh.vocabpowerhouse.utils.getNotificationTitle
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,15 +39,79 @@ class MainActivity : AppCompatActivity() {
         tabs.setupWithViewPager(viewPager)
         val fab: FloatingActionButton = findViewById(R.id.fab)
 
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        pushNotification1()
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(Intent(MainActivity@this, ForEverService::class.java))
+//        } else {
+//            startService(Intent(MainActivity@this, ForEverService::class.java))
+//        }
 
 
-        startService(Intent(MainActivity@this,ForEverService::class.java))
+//        if(!isMyServiceRunning(ForEverService::class.java))
+//          startService(Intent(MainActivity@this,ForEverService::class.java))
 
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
              startCountDown()
         }
+    }
+    var channelID = "VocabPowerHouse"
+    lateinit var notificationManager:NotificationManager
+
+    fun pushNotification1(){
+
+        var intent = Intent(ForEverService@this,MainActivity::class.java)
+        var randomNumber = getRandomNumber(hashMapTransition)
+        intent.putExtra(INTENT_NOTIFICATION_WORD_INDEX,randomNumber)
+
+        val uniqueInt = (System.currentTimeMillis() and 0xfffffff).toInt()
+        var pendingIntent = PendingIntent.getActivity(ForEverService@this,uniqueInt,intent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+
+        var notificationBuilder = NotificationCompat.Builder(ForEverService@this,channelID)
+        notificationBuilder
+            .setContentIntent(pendingIntent)
+            .setContentTitle(getNotificationTitle(ForEverService@this))
+            .setContentText(getNotificationMessage(hashMapTransition,randomNumber))
+            .setPriority(Notification.PRIORITY_MAX)
+            .setSmallIcon(android.R.drawable.sym_def_app_icon)
+            .setChannelId(channelID)
+            .build()
+
+        var notification: Notification = notificationBuilder.build()
+        notification.flags = Notification.FLAG_NO_CLEAR
+        notification.flags = Notification.FLAG_ONGOING_EVENT
+
+
+        if (Build.VERSION.SDK_INT >=  android.os.Build.VERSION_CODES.O) {
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channelId = "Your_channel_id"
+            val channel = NotificationChannel(
+                channelId,
+                "Channel human readable title",
+                importance
+            )
+            notificationManager.createNotificationChannel(channel)
+            notificationBuilder.setChannelId(channelId)
+//            startForeground(1,notificationBuilder.build())
+        }
+
+        notificationManager.notify(0,notificationBuilder.build())
+
+    }
+
+    private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 
 

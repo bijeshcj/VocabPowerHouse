@@ -7,39 +7,35 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bijesh.vocabpowerhouse.R
 import com.bijesh.vocabpowerhouse.constants.INTENT_NOTIFICATION_WORD_INDEX
 import com.bijesh.vocabpowerhouse.ui.main.storage.hashMapTransition
+import com.bijesh.vocabpowerhouse.ui.main.storage.vocabList
 import com.bijesh.vocabpowerhouse.utils.getKeyTitle
 import com.bijesh.vocabpowerhouse.utils.getRandomNumber
-import com.bijesh.vocabpowerhouse.utils.getWordResult
-
-
-
 
 /**
- * A placeholder fragment containing a simple view.
+ * Created by Bijesh C J on 29,June,2019
  */
-class PlaceholderFragment : Fragment() {
+class AllWordsFragment : Fragment() {
 
     private lateinit var pageViewModel: PageViewModel
-    private lateinit  var txtVwMessage:TextView
+    private lateinit  var txtVwMessage: TextView
     private lateinit var word:String
     private lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pageViewModel = ViewModelProviders.of(this).get(PageViewModel::class.java).apply {
-            setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
+//            setIndex(arguments?.getInt(PlaceholderFragment.ARG_SECTION_NUMBER) ?: 1)
             setWord(arguments?.getInt(INTENT_NOTIFICATION_WORD_INDEX) ?: -1)
         }
 
     }
 
     fun setWord(index:Int){
-        PlaceholderFragment@this.word = getKeyTitle(getRandomNumber(hashMapTransition), hashMapTransition)//getKeyTitle(index, hashMapTransition)//getWordResult(getKeyTitle(index, hashMapTransition), hashMapTransition)
+        AllWordsFragment@this.word = vocabList.get(getRandomNumber(vocabList))//getKeyTitle(index, hashMapTransition)//getWordResult(getKeyTitle(index, hashMapTransition), hashMapTransition)
     }
 
     override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -83,14 +79,15 @@ class PlaceholderFragment : Fragment() {
          * number.
          */
         @JvmStatic
-        fun newInstance(sectionNumber: Int,index: Int?): PlaceholderFragment {
-            return PlaceholderFragment().apply {
+        fun newInstance(sectionNumber: Int): AllWordsFragment {
+            return AllWordsFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
-                    if(index != null)
-                    putInt(INTENT_NOTIFICATION_WORD_INDEX,index!!)
+
                 }
             }
         }
     }
+
+
 }
